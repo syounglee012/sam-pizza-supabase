@@ -36,21 +36,3 @@ Why Supabase?
 
 CSS:
 Used for styling, focusing on mobile responsiveness and modern design.
-
-## Installation
-To run this application locally, follow these steps:
-
-Clone the repository:
-`git clone https://github.com/syounglee012/sam-pizza-supabase.git`
-
-Navigate to the project directory:
-`cd sam-pizza-supabase`
-
-Install dependencies:
-`npm install`
-
-Start the development server:
-`npm run dev`
-
-Open the application in your browser:
-`http://localhost:3000`
