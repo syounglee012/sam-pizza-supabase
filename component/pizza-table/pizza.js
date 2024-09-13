@@ -48,8 +48,9 @@ export default function Pizza({ toppings, pizza }) {
   };
 
   const selectedToppingHandler = (id, value) => {
-    const selectedPizza = pizzas.filter((pizza) => pizza.id === id);
-    const toppingExists = selectedPizza[0].toppings.some(
+    const selectedPizza = pizzas.find((pizza) => pizza.id === id);
+
+    const toppingExists = selectedPizza?.toppings?.some(
       (topping) => topping === value
     );
 
@@ -114,6 +115,7 @@ export default function Pizza({ toppings, pizza }) {
                 </div>
               )}
               <select
+                value={""}
                 onChange={(e) =>
                   selectedToppingHandler(pizza.id, e.target.value)
                 }
