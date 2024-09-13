@@ -24,20 +24,27 @@ Manage Pizzas:
 ## Tech&Tool Used
 Next.js: A React framework used for building the application structure.
 
-React Hooks:
-- useState: Used to manage the state of pizzas and toppings.
-- Props are passed between components to manage data flow.
+Supabase:
+Supabase handles data management, replacing useState for storing pizzas and toppings. It directly interacts with the database to persist changes and provides real-time synchronization, ensuring consistent data across the app.
 
-CSS: For styling the components, focusing on mobile responsiveness and modern design.
+Why Supabase?
+- Persistent Storage: Data remains stored in a PostgreSQL database, ensuring it's saved across sessions.
+- Real-time Updates: Instant synchronization of data changes across clients.
+- Scalability: Handles large datasets efficiently, making it better suited for complex applications.
+- Security: Built-in authentication and row-level security.
+- I chose Supabase for its real-time features, scalability, and persistent data management, making it ideal for a dynamic, collaborative application.
+
+CSS:
+Used for styling, focusing on mobile responsiveness and modern design.
 
 ## Installation
 To run this application locally, follow these steps:
 
 Clone the repository:
-`git clone https://github.com/your-repo-url/pizza-management-app.git`
+`git clone https://github.com/syounglee012/sam-pizza-supabase.git`
 
 Navigate to the project directory:
-`cd pizza-management-app`
+`cd sam-pizza-supabase`
 
 Install dependencies:
 `npm install`
