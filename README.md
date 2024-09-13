@@ -25,7 +25,7 @@ Manage Pizzas:
 Next.js: A React framework used for building the application structure.
 
 Supabase:
-Supabase handles data management, replacing useState for storing pizzas and toppings. It directly interacts with the database to persist changes and provides real-time synchronization, ensuring consistent data across the app.
+Supabase is a PostgreSQL-based database. It directly interacts with the database to persist changes and provides real-time synchronization, ensuring consistent data across the app.
 
 Why Supabase?
 - Persistent Storage: Data remains stored in a PostgreSQL database, ensuring it's saved across sessions.
