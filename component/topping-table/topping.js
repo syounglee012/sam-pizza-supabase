@@ -1,50 +1,59 @@
+"use client";
 import React, { useState } from "react";
 import Pizza from "../pizza-table/pizza";
 import "./topping.css";
+import {
+  fetchTopping,
+  addTopping,
+  editTopping,
+  removeTopping,
+} from "./actions";
 
-export default function Topping() {
-  const [toppings, setToppings] = useState([
-    { name: "Cheese", selected: false },
-    { name: "Mushroom", selected: false },
-    { name: "Sausage", selected: false },
-  ]);
+export default function Topping({ data, pizza }) {
+  const [toppings, setToppings] = useState(data);
   const [editing, setEditing] = useState(null);
   const [newTopping, setNewTopping] = useState("");
   const [newToppingInput, setNewToppingInput] = useState("");
 
-  const deleteTopping = (toppingToDelete) => {
-    setToppings(toppings.filter((topping) => topping.name !== toppingToDelete));
-  };
-
-  const editTopping = (toppingToEdit) => {
-    setEditing(toppingToEdit);
-    setNewTopping(toppingToEdit);
-  };
-
-  const saveTopping = () => {
-    setToppings(
-      toppings.map((topping) =>
-        topping.name === editing ? { ...topping, name: newTopping } : topping
-      )
-    );
-    setEditing(null);
-  };
-
-  const addTopping = () => {
+  const handleAddTopping = () => {
     const toppingExists = toppings.some(
       (topping) => topping.name.toLowerCase() === newToppingInput.toLowerCase()
     );
 
     if (!toppingExists && newToppingInput.trim() !== "") {
-      setToppings([
-        ...toppings,
-        { name: newToppingInput.trim(), selected: false },
-      ]);
+      addTopping(newToppingInput);
       setNewToppingInput("");
+      fetchToppingHandler();
     } else {
       alert("This topping already exists or input is invalid!");
     }
   };
+
+  const handleRemoveTopping = (id) => {
+    removeTopping(id);
+    fetchToppingHandler();
+  };
+
+  const handleEditTopping = (value) => {
+    setEditing(value);
+    setNewTopping(value);
+  };
+
+  const handleSaveTopping = (id) => {
+    editTopping(id, newTopping);
+    fetchToppingHandler();
+    setEditing(null);
+  };
+
+  function fetchToppingHandler() {
+    fetchTopping()
+      .then((fetchData) => {
+        setToppings(fetchData);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
 
   return (
     <div className="topping-container">
@@ -56,12 +65,12 @@ export default function Topping() {
           onChange={(e) => setNewToppingInput(e.target.value)}
           placeholder="Add new topping"
         />
-        <button onClick={addTopping}>Add</button>
+        <button onClick={handleAddTopping}>Add</button>
       </div>
       <table>
         <tbody>
           {toppings.map((topping, idx) => (
-            <tr key={topping.name}>
+            <tr key={topping.id}>
               <td id="idx">{idx + 1}</td>
               <td>
                 {editing === topping.name ? (
@@ -77,15 +86,17 @@ export default function Topping() {
 
               <td>
                 {editing === topping.name ? (
-                  <button onClick={saveTopping}>Save</button>
+                  <button onClick={() => handleSaveTopping(topping.id)}>
+                    Save
+                  </button>
                 ) : (
-                  <button onClick={() => editTopping(topping.name)}>
+                  <button onClick={() => handleEditTopping(topping.name)}>
                     Edit
                   </button>
                 )}
               </td>
               <td>
-                <button onClick={() => deleteTopping(topping.name)}>
+                <button onClick={() => handleRemoveTopping(topping.id)}>
                   Delete
                 </button>
               </td>
@@ -94,7 +105,7 @@ export default function Topping() {
         </tbody>
       </table>
 
-      <Pizza toppings={toppings} />
+      <Pizza toppings={toppings} pizza={pizza} />
     </div>
   );
 }

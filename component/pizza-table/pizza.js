@@ -1,91 +1,80 @@
 import React, { useState } from "react";
 import "./pizza.css";
+import {
+  fetchPizza,
+  addPizza,
+  editPizza,
+  removePizza,
+  removePizzaTopping,
+  addPizzaTopping,
+} from "./actions";
 
-export default function Pizza({ toppings }) {
-  const [pizzas, setPizzas] = useState([]);
+export default function Pizza({ toppings, pizza }) {
+  const [pizzas, setPizzas] = useState(pizza);
   const [newPizzaName, setNewPizzaName] = useState("");
   const [editingPizzaIndex, setEditingPizzaIndex] = useState(null);
   const [tempPizzaName, setTempPizzaName] = useState("");
 
-  const addPizza = () => {
-    if (
-      newPizzaName.trim() === "" ||
-      pizzas.some(
-        (pizza) => pizza.name.toLowerCase() === newPizzaName.toLowerCase()
-      )
-    ) {
-      alert("This pizza already exists or the name is empty.");
-      return;
-    }
-
-    setPizzas([
-      ...pizzas,
-      { name: newPizzaName, toppings: [], selectedTopping: "" },
-    ]);
-    setNewPizzaName("");
-  };
-
-  const deletePizza = (index) => {
-    const updatedPizzas = pizzas.filter((_, i) => i !== index);
-    setPizzas(updatedPizzas);
-  };
-
-  const editPizza = (index) => {
-    setEditingPizzaIndex(index);
-    setTempPizzaName(pizzas[index].name);
-  };
-
-  const savePizzaName = (index) => {
-    const updatedPizzas = pizzas.map((pizza, i) =>
-      i === index ? { ...pizza, name: tempPizzaName } : pizza
+  const handleAddPizza = () => {
+    const pizzaExists = pizzas.some(
+      (pizza) => pizza.name.toLowerCase() === newPizzaName.toLowerCase()
     );
-    setPizzas(updatedPizzas);
-    setEditingPizzaIndex(null);
-  };
 
-  const addToppingToPizza = (pizzaIndex) => {
-    const pizza = pizzas[pizzaIndex];
-    if (pizza.toppings.includes(pizza.selectedTopping)) {
-      alert("This topping has already been added.");
-      return;
+    if (!pizzaExists && newPizzaName.trim() !== "") {
+      addPizza(newPizzaName);
+      setNewPizzaName("");
+      fetchPizzaHandler();
+    } else {
+      alert("This pizza already exists or input is invalid!");
     }
-    if (pizza.selectedTopping === "") {
-      alert("Please select a topping before adding.");
-      return;
+  };
+
+  const handleRemovePizza = (id) => {
+    removePizza(id);
+    fetchPizzaHandler();
+  };
+
+  const handleNewPizzaName = (id, name) => {
+    setEditingPizzaIndex(id);
+    setTempPizzaName(name);
+  };
+
+  const handleEditPizza = () => {
+    if (tempPizzaName !== "") {
+      editPizza(editingPizzaIndex, tempPizzaName);
+      setEditingPizzaIndex(null);
+      fetchPizzaHandler();
+    } else alert("Pizza name is required");
+  };
+
+  const selectedToppingHandler = (id, value) => {
+    const selectedPizza = pizzas.filter((pizza) => pizza.id === id);
+    const toppingExists = selectedPizza[0].toppings.some(
+      (topping) => topping === value
+    );
+
+    if (!toppingExists && value.trim() !== "") {
+      addPizzaTopping(id, value);
+      fetchPizzaHandler();
+    } else {
+      alert("This topping already exists or input is invalid!");
     }
-
-    const updatedPizzas = pizzas.map((pizza, i) =>
-      i === pizzaIndex
-        ? {
-            ...pizza,
-            toppings: [...pizza.toppings, pizza.selectedTopping],
-            selectedTopping: "",
-          }
-        : pizza
-    );
-    setPizzas(updatedPizzas);
   };
 
-  const selectedToppingHandler = (pizzaIndex, value) => {
-    const updatedPizzas = pizzas.map((pizza, i) =>
-      i === pizzaIndex ? { ...pizza, selectedTopping: value } : pizza
-    );
-    setPizzas(updatedPizzas);
+  const handleRemovePizzaTopping = (id, value) => {
+    removePizzaTopping(id, value);
+    fetchPizzaHandler();
   };
 
-  const removeTopping = (pizzaIndex, toppingIndex) => {
-    const updatedPizzas = pizzas.map((pizza, i) => {
-      if (i === pizzaIndex) {
-        const updatedToppings = pizza.toppings.filter(
-          (_, tIndex) => tIndex !== toppingIndex
-        );
-        return { ...pizza, toppings: updatedToppings };
-      }
-      return pizza;
-    });
-    setPizzas(updatedPizzas);
-  };
-
+  function fetchPizzaHandler() {
+    fetchPizza()
+      .then((fetchData) => {
+        setPizzas(fetchData);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  }
   return (
     <div className="pizza-container">
       <div>Create a New Pizza</div>
@@ -95,60 +84,68 @@ export default function Pizza({ toppings }) {
         value={newPizzaName}
         onChange={(e) => setNewPizzaName(e.target.value)}
       />
-      <button onClick={addPizza}>Create</button>
+      <button onClick={handleAddPizza}>Create</button>
 
       <div className="pizza-list">
-        {pizzas.map((pizza, index) => (
-          <div key={index} className="pizza-item">
-            {editingPizzaIndex === index ? (
-              <div>
-                <input
-                  type="text"
-                  value={tempPizzaName}
-                  onChange={(e) => setTempPizzaName(e.target.value)}
-                />
-                <button onClick={() => savePizzaName(index)}>Save</button>
-                <button onClick={() => setEditingPizzaIndex(null)}>
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <div>
-                <h3>{pizza.name}</h3>
-                <button onClick={() => editPizza(index)}>Edit</button>
-              </div>
-            )}
-
-            <ul>
-              {pizza.toppings.map((topping, toppingIndex) => (
-                <li key={toppingIndex}>
-                  {topping}
-                  <button onClick={() => removeTopping(index, toppingIndex)}>
-                    Remove
+        {pizzas
+          .sort((a, b) => a.id - b.id)
+          .map((pizza, index) => (
+            <div key={index} className="pizza-item">
+              {editingPizzaIndex === pizza.id ? (
+                <div>
+                  <input
+                    type="text"
+                    value={tempPizzaName}
+                    onChange={(e) => setTempPizzaName(e.target.value)}
+                  />
+                  <button onClick={handleEditPizza}>Save</button>
+                  <button onClick={() => setEditingPizzaIndex(null)}>
+                    Cancel
                   </button>
-                </li>
-              ))}
-            </ul>
+                </div>
+              ) : (
+                <div>
+                  <h3>{pizza.name}</h3>
+                  <button
+                    onClick={() => handleNewPizzaName(pizza.id, pizza.name)}
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
+              <select
+                onChange={(e) =>
+                  selectedToppingHandler(pizza.id, e.target.value)
+                }
+              >
+                <option value="">Select Topping</option>
+                {toppings.map((topping, toppingIndex) => (
+                  <option key={toppingIndex} value={topping.name}>
+                    {topping.name}
+                  </option>
+                ))}
+              </select>
+              <ul>
+                {pizza.toppings !== null &&
+                  pizza.toppings.map((topping, toppingIndex) => (
+                    <li key={toppingIndex}>
+                      {topping}
+                      <button
+                        onClick={() =>
+                          handleRemovePizzaTopping(pizza.id, topping)
+                        }
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+              </ul>
 
-            <select
-              value={pizza.selectedTopping}
-              onChange={(e) => selectedToppingHandler(index, e.target.value)}
-            >
-              <option value="">Select Topping</option>
-              {toppings.map((topping, toppingIndex) => (
-                <option key={toppingIndex} value={topping.name}>
-                  {topping.name}
-                </option>
-              ))}
-            </select>
-
-            <button onClick={() => addToppingToPizza(index)}>
-              Add Topping
-            </button>
-
-            <button onClick={() => deletePizza(index)}>Delete Pizza</button>
-          </div>
-        ))}
+              <button onClick={() => handleRemovePizza(pizza.id)}>
+                Delete Pizza
+              </button>
+            </div>
+          ))}
       </div>
     </div>
   );
