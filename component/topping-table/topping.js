@@ -8,6 +8,7 @@ import {
   editTopping,
   removeTopping,
 } from "./actions";
+import { removeDeletedToppingsFromTheList } from "../pizza-table/actions";
 
 export default function Topping({ data, pizza }) {
   const [toppings, setToppings] = useState(data);
@@ -29,9 +30,11 @@ export default function Topping({ data, pizza }) {
     }
   };
 
-  const handleRemoveTopping = (id) => {
+  const handleRemoveTopping = (id, value) => {
     removeTopping(id);
-    fetchToppingHandler();
+    removeDeletedToppingsFromTheList(value).then(() =>
+      window.location.reload()
+    );
   };
 
   const handleEditTopping = (value) => {
@@ -95,7 +98,7 @@ export default function Topping({ data, pizza }) {
                     topping.name
                   )}
                 </td>
-                <div className="topping-list">
+                <td className="topping-list">
                   {editing === topping.name ? (
                     <button onClick={() => handleSaveTopping(topping.id)}>
                       Save
@@ -106,10 +109,14 @@ export default function Topping({ data, pizza }) {
                     </button>
                   )}
 
-                  <button onClick={() => handleRemoveTopping(topping.id)}>
+                  <button
+                    onClick={() =>
+                      handleRemoveTopping(topping.id, topping.name)
+                    }
+                  >
                     Delete
                   </button>
-                </div>
+                </td>
               </tr>
             ))}
         </tbody>

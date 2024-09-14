@@ -1,5 +1,6 @@
 "use server";
 import { createClient } from "../../utils/supabase/server";
+
 const supabase = createClient();
 
 export async function fetchPizza() {
@@ -43,8 +44,6 @@ export async function addPizzaTopping(id: number, newTopping: string) {
 
   if (error) {
     console.error("Error adding topping:", error);
-  } else {
-    console.log("Topping added:", data);
   }
 }
 
@@ -91,7 +90,33 @@ export async function removePizzaTopping(id: number, toppingToRemove: string) {
 
   if (error) {
     console.error("Error removing topping:", error);
-  } else {
-    console.log("Topping removed:", data);
+  }
+}
+
+export async function removeDeletedToppingsFromTheList(removedTopping: string) {
+  const { data: pizzaData, error: fetchError } = await supabase
+    .from("pizza")
+    .select("id, toppings")
+    .contains("toppings", [removedTopping]);
+
+  if (fetchError) {
+    console.error("Error fetching pizzas with the topping:", fetchError);
+    return;
+  }
+
+  for (const pizza of pizzaData) {
+    const updatedToppings = pizza.toppings.filter(
+      (topping: string) => topping !== removedTopping
+    );
+
+    const { data, error } = await supabase
+      .from("pizza")
+      .update({ toppings: updatedToppings })
+      .eq("id", pizza.id)
+      .select();
+
+    if (error) {
+      console.error(`Error removing topping for pizza ID ${pizza.id}:`, error);
+    }
   }
 }
