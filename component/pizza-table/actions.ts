@@ -1,8 +1,8 @@
 "use server";
 import { createClient } from "../../utils/supabase/server";
+const supabase = createClient();
 
 export async function fetchPizza() {
-  const supabase = createClient();
   const { data, error } = await supabase.from("pizza").select("*");
 
   if (error) console.error("Error fetching pizza:", error);
@@ -11,8 +11,6 @@ export async function fetchPizza() {
 }
 
 export async function addPizza(value: String) {
-  const supabase = createClient();
-
   const { data, error } = await supabase
     .from("pizza")
     .insert([{ name: value }])
@@ -22,8 +20,6 @@ export async function addPizza(value: String) {
 }
 
 export async function addPizzaTopping(id: number, newTopping: string) {
-  const supabase = createClient();
-
   const { data: pizzaData, error: fetchError } = await supabase
     .from("pizza")
     .select("toppings")
@@ -53,8 +49,6 @@ export async function addPizzaTopping(id: number, newTopping: string) {
 }
 
 export async function editPizza(id: number, value: String) {
-  const supabase = createClient();
-
   const { error } = await supabase
     .from("pizza")
     .update({ name: value })
@@ -72,8 +66,6 @@ export async function removePizza(id: number) {
 }
 
 export async function removePizzaTopping(id: number, toppingToRemove: string) {
-  const supabase = createClient();
-
   const { data: pizzaData, error: fetchError } = await supabase
     .from("pizza")
     .select("toppings")
