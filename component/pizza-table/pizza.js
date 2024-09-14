@@ -79,13 +79,20 @@ export default function Pizza({ toppings, pizza }) {
   return (
     <div className="pizza-container">
       <div>Create a New Pizza</div>
-      <input
-        type="text"
-        placeholder="Pizza Name"
-        value={newPizzaName}
-        onChange={(e) => setNewPizzaName(e.target.value)}
-      />
-      <button onClick={handleAddPizza}>Create</button>
+      <div className="input-box">
+        <input
+          type="text"
+          placeholder="Pizza Name"
+          value={newPizzaName}
+          onChange={(e) => setNewPizzaName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleAddPizza();
+            }
+          }}
+        />
+        <button onClick={handleAddPizza}>Create</button>
+      </div>
 
       <div className="pizza-list">
         {pizzas
@@ -95,14 +102,24 @@ export default function Pizza({ toppings, pizza }) {
               {editingPizzaIndex === pizza.id ? (
                 <div>
                   <input
+                    className="new-name-input"
                     type="text"
                     value={tempPizzaName}
                     onChange={(e) => setTempPizzaName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        handleEditPizza();
+                      }
+                    }}
                   />
-                  <button onClick={handleEditPizza}>Save</button>
-                  <button onClick={() => setEditingPizzaIndex(null)}>
-                    Cancel
-                  </button>
+                  <div>
+                    <button className="save-btn" onClick={handleEditPizza}>
+                      Save
+                    </button>
+                    <button onClick={() => setEditingPizzaIndex(null)}>
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div>
@@ -143,7 +160,10 @@ export default function Pizza({ toppings, pizza }) {
                   ))}
               </ul>
 
-              <button onClick={() => handleRemovePizza(pizza.id)}>
+              <button
+                className="del-btn"
+                onClick={() => handleRemovePizza(pizza.id)}
+              >
                 Delete Pizza
               </button>
             </div>

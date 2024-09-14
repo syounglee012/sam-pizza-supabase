@@ -64,44 +64,54 @@ export default function Topping({ data, pizza }) {
           value={newToppingInput}
           onChange={(e) => setNewToppingInput(e.target.value)}
           placeholder="Add new topping"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleAddTopping();
+            }
+          }}
         />
         <button onClick={handleAddTopping}>Add</button>
       </div>
       <table>
         <tbody>
-          {toppings.map((topping, idx) => (
-            <tr key={topping.id}>
-              <td id="idx">{idx + 1}</td>
-              <td>
-                {editing === topping.name ? (
-                  <input
-                    type="text"
-                    value={newTopping}
-                    onChange={(e) => setNewTopping(e.target.value)}
-                  />
-                ) : (
-                  topping.name
-                )}
-              </td>
+          {toppings
+            .sort((a, b) => a.id - b.id)
+            .map((topping, idx) => (
+              <tr key={topping.id}>
+                <td id="idx">{idx + 1}</td>
+                <td>
+                  {editing === topping.name ? (
+                    <input
+                      type="text"
+                      value={newTopping}
+                      onChange={(e) => setNewTopping(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleSaveTopping(topping.id);
+                        }
+                      }}
+                    />
+                  ) : (
+                    topping.name
+                  )}
+                </td>
+                <div className="topping-list">
+                  {editing === topping.name ? (
+                    <button onClick={() => handleSaveTopping(topping.id)}>
+                      Save
+                    </button>
+                  ) : (
+                    <button onClick={() => handleEditTopping(topping.name)}>
+                      Edit
+                    </button>
+                  )}
 
-              <td>
-                {editing === topping.name ? (
-                  <button onClick={() => handleSaveTopping(topping.id)}>
-                    Save
+                  <button onClick={() => handleRemoveTopping(topping.id)}>
+                    Delete
                   </button>
-                ) : (
-                  <button onClick={() => handleEditTopping(topping.name)}>
-                    Edit
-                  </button>
-                )}
-              </td>
-              <td>
-                <button onClick={() => handleRemoveTopping(topping.id)}>
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
+                </div>
+              </tr>
+            ))}
         </tbody>
       </table>
 
