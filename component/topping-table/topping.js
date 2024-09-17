@@ -15,13 +15,14 @@ export default function Topping({ data, pizza }) {
   const [editing, setEditing] = useState(null);
   const [newTopping, setNewTopping] = useState("");
   const [newToppingInput, setNewToppingInput] = useState("");
+  const regexp = /^\b(\w+\b\s*){1,15}$/;
 
   const handleAddTopping = () => {
     const toppingExists = toppings.some(
       (topping) => topping.name.toLowerCase() === newToppingInput.toLowerCase()
     );
 
-    if (!toppingExists && newToppingInput.trim() !== "") {
+    if (!toppingExists && regexp.test(newToppingInput.trim())) {
       addTopping(newToppingInput);
       setNewToppingInput("");
       fetchToppingHandler();
@@ -122,7 +123,7 @@ export default function Topping({ data, pizza }) {
         </tbody>
       </table>
 
-      <Pizza toppings={toppings} pizza={pizza} />
+      <Pizza toppings={toppings} pizza={pizza} regexp={regexp} />
     </div>
   );
 }

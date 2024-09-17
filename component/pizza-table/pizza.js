@@ -9,7 +9,7 @@ import {
   addPizzaTopping,
 } from "./actions";
 
-export default function Pizza({ toppings, pizza }) {
+export default function Pizza({ toppings, pizza, regexp }) {
   const [pizzas, setPizzas] = useState(pizza);
   const [newPizzaName, setNewPizzaName] = useState("");
   const [editingPizzaIndex, setEditingPizzaIndex] = useState(null);
@@ -20,7 +20,7 @@ export default function Pizza({ toppings, pizza }) {
       (pizza) => pizza.name.toLowerCase() === newPizzaName.toLowerCase()
     );
 
-    if (!pizzaExists && newPizzaName.trim() !== "") {
+    if (!pizzaExists && regexp.test(newPizzaName.trim())) {
       addPizza(newPizzaName);
       setNewPizzaName("");
       fetchPizzaHandler();
@@ -40,7 +40,7 @@ export default function Pizza({ toppings, pizza }) {
   };
 
   const handleEditPizza = () => {
-    if (tempPizzaName !== "") {
+    if (regexp.test(tempPizzaName)) {
       editPizza(editingPizzaIndex, tempPizzaName);
       setEditingPizzaIndex(null);
       fetchPizzaHandler();
