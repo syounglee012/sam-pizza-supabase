@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import "./pizza.css";
 import {
   fetchPizza,
@@ -8,12 +9,35 @@ import {
   removePizzaTopping,
   addPizzaTopping,
 } from "./actions";
+import { createClient } from "../../utils/supabase/client";
 
 export default function Pizza({ toppings, pizza, regexp }) {
   const [pizzas, setPizzas] = useState(pizza);
   const [newPizzaName, setNewPizzaName] = useState("");
   const [editingPizzaIndex, setEditingPizzaIndex] = useState(null);
   const [tempPizzaName, setTempPizzaName] = useState("");
+  const supabase = createClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("supabase-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "toppings",
+        },
+        () => {
+          fetchPizzaHandler();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase]);
 
   const handleAddPizza = () => {
     const pizzaExists = pizzas.some(
